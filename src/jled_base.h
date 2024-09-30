@@ -199,7 +199,8 @@ class TJLed {
           state_{ST_INIT},
           bLowActive_{false},
           minBrightness_{0},
-          maxBrightness_{255} {}
+          maxBrightness_{255},
+          currentBrightness_{0} {}
 
     explicit TJLed(typename HalType::PinType pin) : TJLed{HalType{pin}} {}
 
@@ -210,6 +211,7 @@ class TJLed {
         bLowActive_ = rLed.bLowActive_;
         minBrightness_ = rLed.minBrightness_;
         maxBrightness_ = rLed.maxBrightness_;
+        currentBrightness_ = rLed.currentBrightness_;
         num_repetitions_ = rLed.num_repetitions_;
         last_update_time_ = rLed.last_update_time_;
         delay_before_ = rLed.delay_before_;
@@ -369,7 +371,7 @@ class TJLed {
     // Returns current minimum brightness level.
     uint8_t MinBrightness() const { return minBrightness_; }
 
-    // Sets the minimum brightness level (ranging from 0 to 255).
+    // Sets the maximum brightness level (ranging from 0 to 255).
     B& MaxBrightness(uint8_t level) {
         maxBrightness_ = level;
         return static_cast<B&>(*this);
@@ -377,6 +379,9 @@ class TJLed {
 
     // Returns current maximum brightness level.
     uint8_t MaxBrightness() const { return maxBrightness_; }
+
+    // Returns current brightness level.
+    uint8_t currentBrightness() const { return currentBrightness_; }
 
  protected:
     // test if time stored in last_update_time_ differs from provided timestamp.
@@ -422,21 +427,23 @@ class TJLed {
             if ((int32_t)(now - time_end) >= 0) {
                 // make sure final value of t = (period-1) is set
                 state_ = ST_STOPPED;
-                const auto val = Eval(period - 1);
-                Write(val);
+                currentBrightness_ = Eval(period - 1);
+                Write(currentBrightness_);
                 return false;
             }
         }
 
         if (t < period) {
             state_ = ST_RUNNING;
-            Write(Eval(t));
+            currentBrightness_ = Eval(t);
+            Write(currentBrightness_);
         } else {
             if (state_ == ST_RUNNING) {
                 // when in delay after phase, just call Write()
                 // once at the beginning.
                 state_ = ST_IN_DELAY_AFTER_PHASE;
-                Write(Eval(period - 1));
+                currentBrightness_ = Eval(period - 1);
+                Write(currentBrightness_);
             }
         }
         return true;
@@ -463,6 +470,7 @@ class TJLed {
     uint8_t bLowActive_ : 1;
     uint8_t minBrightness_;
     uint8_t maxBrightness_;
+    uint8_t currentBrightness_;
 
     // this is where the BrightnessEvaluator object will be stored using
     // placment new.  Set MAX_SIZE to class occupying most memory
