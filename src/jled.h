@@ -47,6 +47,9 @@ namespace jled {using JLedHalType = Esp32Hal;}
 #elif defined(ESP8266)
 #include "esp8266_hal.h"  // NOLINT
 namespace jled {using JLedHalType = Esp8266Hal;}
+#elif defined(__ZEPHYR__)
+#include "zephyr_hal.h"  // NOLINT
+namespace jled {using JLedHalType = ZephyrHal;}
 #else
 #include "arduino_hal.h"  // NOLINT
 namespace jled {using JLedHalType = ArduinoHal;}
