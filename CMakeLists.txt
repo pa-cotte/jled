@@ -10,6 +10,7 @@ elseif(DEFINED ENV{ZEPHYR_BASE}) # Zephyr module
   zephyr_library_named(JLed)
   target_sources(JLed PRIVATE src/jled_base.cpp)
   target_include_directories(JLed PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 else() # Raspberry Pi Pico
 	add_library (JLed src/jled_base.cpp)
 	target_include_directories (JLed PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
