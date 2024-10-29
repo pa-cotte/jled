@@ -65,9 +65,15 @@ class JLedSequence : public TJLedSequence<JLed, JLedSequence> {
     using TJLedSequence<JLed, JLedSequence>::TJLedSequence;
 };
 
+// a group of JLedSequence objects which can be controlled simultanously
+class JLedSequenceOfSequences : public TJLedSequence<JLedSequence, JLedSequenceOfSequences> {
+    using TJLedSequence<JLedSequence, JLedSequenceOfSequences>::TJLedSequence;
+};
+
 };  // namespace jled
 
 using JLed = jled::JLed;
 using JLedSequence = jled::JLedSequence;
+using JLedSequenceOfSequences = jled::JLedSequenceOfSequences;
 
 #endif  // SRC_JLED_H_
