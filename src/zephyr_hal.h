@@ -25,6 +25,7 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/kernel.h>
+#include <variant>
 
 namespace jled {
 
@@ -32,19 +33,28 @@ class ZephyrHal {
  public:
     using PinType = struct pwm_dt_spec;
 
-    explicit ZephyrHal(PinType pin) noexcept : pin_(pin) {
-        __ASSERT(pwm_is_ready_dt(&pin), "Device %s is not ready", pin.dev->name);
+    explicit ZephyrHal(PinType pin) noexcept : _output(pin) {
+        __ASSERT(pwm_is_ready_dt(&pin), "Device %s is not ready",
+                 pin.dev->name);
     }
 
+    explicit ZephyrHal(uint8_t* ptr) noexcept : _output(ptr) {}
+
     void analogWrite(uint8_t val) const {
-        ::pwm_set_pulse_dt(&pin_,
-                           (uint32_t)((uint64_t)pin_.period * val / 255));
+        if (std::holds_alternative<uint8_t*>(_output)) {
+            *std::get<uint8_t*>(_output) = val;
+        } else {
+            ::pwm_set_pulse_dt(
+                &std::get<PinType>(_output),
+                (uint32_t)((uint64_t)std::get<PinType>(_output).period * val /
+                           255));
+        }
     }
 
     uint32_t millis() const { return ::k_uptime_get(); }
 
  private:
-    PinType pin_;
+    std::variant<PinType, uint8_t*> _output;
 };
 }  // namespace jled
 #endif  // SRC_ZEPHYR_HAL_H_
