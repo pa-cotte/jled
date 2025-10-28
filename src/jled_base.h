@@ -589,6 +589,8 @@ class TJLedSequence {
     B& Forever() { return Repeat(kRepeatForever); }
     bool IsForever() const { return num_repetitions_ == kRepeatForever; }
 
+    bool IsRunning() const { return is_running_; }
+
  private:
     eMode mode_;
     L* leds_;
